@@ -158,6 +158,20 @@ namespace ContextServer
             aTimer.Enabled = true;
         }
 
+        private static void SendPresenceToSCIM(object source, ElapsedEventArgs e)
+        {
+            if (_statusdict.Count > 0)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (KeyValuePair<string, string> keyValuePair in _statusdict)
+                {
+                    sb.Append(keyValuePair.Key + ":" + keyValuePair.Value);
+                }
+                _statusdict.Clear();
+                _app.SendMessage("<sip:scim@open-ims.test>", sb.ToString());
+            }
+        }
+
         static void Main(string[] args)
         {
             TransportInfo localTransport = CreateTransport(Helpers.GetLocalIP(), 7777);
@@ -173,20 +187,6 @@ namespace ContextServer
             Subscribe("<sip:alice@open-ims.test>");
             Console.WriteLine("Press \'q\' to quit");
             while (Console.Read() != 'q') ;
-        }
-
-        private static void SendPresenceToSCIM(object source, ElapsedEventArgs e)
-        {
-            if(_statusdict.Count > 0)
-            {
-            StringBuilder sb = new StringBuilder();
-            foreach (KeyValuePair<string, string> keyValuePair in _statusdict)
-            {
-                sb.Append(keyValuePair.Key + ":" + keyValuePair.Value);
-            }
-            _statusdict.Clear();
-            _app.SendMessage("<sip:scim@open-ims.test>", sb.ToString());
-            }
         }
     }
 }
