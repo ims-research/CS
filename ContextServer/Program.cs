@@ -165,7 +165,7 @@ namespace ContextServer
                 StringBuilder sb = new StringBuilder();
                 foreach (KeyValuePair<string, string> keyValuePair in _statusdict)
                 {
-                    sb.Append(keyValuePair.Key + ":" + keyValuePair.Value);
+                    sb.Append(keyValuePair.Key + ":" + "presence:"+ keyValuePair.Value);
                 }
                 _statusdict.Clear();
                 _app.SendMessage("<sip:scim@open-ims.test>", sb.ToString());
