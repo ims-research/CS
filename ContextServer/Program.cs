@@ -131,7 +131,7 @@ namespace ContextServer
                             contact = contact.Replace(">", "");
                             contact = contact.Replace("sip:", "");
                             Log.Info("Received status update: " + contact + " " + basic + " " + note);
-                            _statusdict.Add(contact,basic);
+                            _statusdict[contact] = note;
                         }
                         catch (Exception exception)
                         {
