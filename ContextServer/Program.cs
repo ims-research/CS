@@ -61,8 +61,6 @@ namespace ContextServer
                         }
                         break;
                     }
-                case "INVITE":
-                case "REGISTER":
                 default:
                     Log.Info("Response for Request Type " + requestType + " is unhandled ");
                     break;
@@ -75,14 +73,6 @@ namespace ContextServer
             Message request = e.Message;
             switch (request.Method.ToUpper())
             {
-                case "INVITE":
-                case "REGISTER":
-                case "BYE":
-                case "ACK":
-                case "MESSAGE":
-                case "OPTIONS":
-                case "REFER":
-                case "SUBSCRIBE":
                 case "NOTIFY":
                     {
                         Message m = e.UA.CreateResponse(200, "OK");
@@ -90,11 +80,11 @@ namespace ContextServer
                         ProcessRequest(request);
                         break;
                     }
-                case "PUBLISH":
-                case "INFO":
                 default:
                     {
                         Log.Info("Request with method " + request.Method.ToUpper() + " is unhandled");
+                        Message m = e.UA.CreateResponse(501,"Not Implemented");
+                        e.UA.SendResponse(m);
                         break;
                     }
             }

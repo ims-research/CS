@@ -182,16 +182,6 @@ namespace ContextServer
 
         }
 
-        public void Timeout(Transaction transaction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Error(Transaction transaction, string error)
-        {
-            throw new NotImplementedException();
-        }
-
         public void SendMessage(string uri, string message, string contentType = "text/plain")
         {
             uri = checkURI(uri);
@@ -202,25 +192,6 @@ namespace ContextServer
             mua.SendRequest(m);
         }
 
-        public void EndCall(String CallID)
-        {
-            if (!String.IsNullOrEmpty(CallID))
-            {
-                foreach (UserAgent userAgent in Useragents)
-                {
-                    if (userAgent.CallID == CallID)
-                    {
-                        Message bye = userAgent.CreateRequest("BYE");
-                        userAgent.SendRequest(bye);
-                    }
-                }
-            }
-            else
-            {
-                Log.Error("CallID cannot be Null or Emtpy in EndCall");
-            }
-        }
-
         private string checkURI(string uri)
         {
             if (!uri.Contains("<sip:") && !uri.Contains("sip:"))
@@ -228,63 +199,6 @@ namespace ContextServer
                 uri = "<sip:" + uri + ">";
             }
             return uri;
-        }
-
-        public void SendInvite(string uri)
-        {
-            uri = checkURI(uri);
-            UserAgent cua = new UserAgent(Stack) { LocalParty = PublicServiceIdentity, RemoteParty = new Address(uri) };
-            Useragents.Add(cua);
-            Message invite = cua.CreateRequest("INVITE");
-            cua.SendRequest(invite);
-        }
-
-        public void SendInvite(string uri, SDP sdp)
-        {
-            uri = checkURI(uri);
-            UserAgent cua = new UserAgent(Stack) { LocalParty = PublicServiceIdentity, RemoteParty = new Address(uri) };
-            Useragents.Add(cua);
-            Message invite = cua.CreateRequest("INVITE");
-            invite.InsertHeader(new Header("application/sdp", "Content-Type"));
-            invite.Body = sdp.ToString();
-            cua.SendRequest(invite);
-        }
-
-        internal void AcceptCall(SDP sdp, Message IncomingCall)
-        {
-            foreach (UserAgent userAgent in Useragents.ToArray())
-            {
-                if (userAgent.CallID == IncomingCall.First("Call-ID").Value.ToString())
-                {
-                    Message response = userAgent.CreateResponse(200, "OK");
-                    response.InsertHeader(new Header("application/sdp", "Content-Type"));
-                    response.Body = sdp.ToString();
-                    userAgent.SendResponse(response);
-                }
-            }
-        }
-
-        internal void Publish(string sipUri, string basic, string note, int expires)
-        {
-            UserAgent pua = new UserAgent(Stack) { LocalParty = PublicServiceIdentity, RemoteParty = new Address(sipUri) };
-            Useragents.Add(pua);
-            Message request = pua.CreateRequest("PUBLISH");
-            request.InsertHeader(new Header("presence", "Event"));
-            request.InsertHeader(new Header(pua.LocalParty.ToString(), "P-Preferred-Identity"));
-            request.InsertHeader(new Header("application/pidf+xml", "Content-Type"));
-
-            StringBuilder sb = new StringBuilder();
-            sb.Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-            sb.Append("<presence xmlns=\"urn:ietf:params:xml:ns:pidf\" xmlns:im=\"urn:ietf:params:xml:ns:pidf:im\" entity=\"" + sipUri + "\">\n");
-            sb.Append("<tuple id=\"Sharp_IMS_Client\">\n");
-            sb.Append("<status>\n");
-            sb.Append("<basic>" + basic + "</basic>\n");
-            sb.Append("</status>\n");
-            sb.Append("<note>" + note + "</note>\n");
-            sb.Append("</tuple>\n");
-            sb.Append("</presence>\n");
-            request.Body = sb.ToString();
-            pua.SendRequest(request);
         }
     }
 }
